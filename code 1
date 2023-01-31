@@ -1,5 +1,7 @@
 #include <Servo.h>
 
+int inputpin =  13;
+
 Servo myservo;  // create servo object to control a servo
 
 int angle =0;    // initial angle  for servo
@@ -8,26 +10,23 @@ int angleStep =10;
 void setup() {
   // Servo button demo by Robojax.com
   Serial.begin(9600);          //  setup serial
-  myservo.attach(9);  // attaches the servo on pin 9 to the servo object
-  pinMode(4,INPUT_PULLUP);
-   Serial.println("Servo Button ");
+  myservo.attach(6);  // attaches the servo on pin 9 to the servo object
+  myservo.write(angle);
+  pinMode(inputpin,INPUT_PULLUP);
+  Serial.println("Servo Button");
 }
 
 void loop() {
-  while(digitalRead(4) == LOW){
-  // change the angle for next time through the loop:
-  angle = angle + angleStep;
 
-    // reverse the direction of the moving at the ends of the angle:
-    if (angle <= 0 || angle >= 180) {
-      angleStep = -angleStep;
-    }
-    myservo.write(angle); // move the servo to desired angle
-      Serial.print("Moved to: ");
-      Serial.print(angle);   // print the angle
-      Serial.println(" degree");    
-  delay(100); // waits for the servo to get there
-  }// while
-
-  
+  if (digitalRead(inputpin) == LOW){
+    if (angle < 180) {
+      angle = angle + angleStep;
+      myservo.write(angle);
+    } 
+  }
+  else {
+    angle = 0;
+    myservo.write(angle);
+  }
+    
 }

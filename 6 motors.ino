@@ -1,15 +1,5 @@
 #include <Servo.h> 
 
-Servo pump1;
-Servo pump2;
-Servo pump3;
-int counter1 = 0;
-int counter2 = 60;
-int counter3 = 120;
-int adder1 = 1;
-int adder2 = 1;
-int adder3 = 1;
-int step_time = 3;
 
 int inputpin1 =  22;
 int inputpin2 =  24;
@@ -42,15 +32,42 @@ int Step5 = angleStep;
 int Step6 = angleStep;
 
 
-void setup() 
-{ 
+// Define stepper motor connections and steps per revolution:
+#define dirPin_1 2
+#define stepPin_1 3
+#define dirPin_2 4
+#define stepPin_2 5
+#define dirPin_3 6
+#define stepPin_3 7
+#define stepsPerRevolution 200
+#define delay_stepper 2000
+
+int counter_1 = 0;
+int counter_2 = 99;
+int counter_3 = 199;
+int adder_1 = 1;
+int adder_2 = 1;
+int adder_3 = 1;
+
+void setup() {
+
   Serial.begin(9600);          //  setup serial
-  myservo1.attach(5);  // attaches the servo on pin 9 to the servo object
-  myservo2.attach(6);  // attaches the servo on pin 9 to the servo object
-  myservo3.attach(7);  // attaches the servo on pin 9 to the servo object
-  myservo4.attach(8);  // attaches the servo on pin 9 to the servo object
-  myservo5.attach(9);  // attaches the servo on pin 9 to the servo object
-  myservo6.attach(10);  // attaches the servo on pin 9 to the servo object
+
+  // Declare pins as output:
+  pinMode(stepPin_1, OUTPUT);
+  pinMode(dirPin_1, OUTPUT);
+  pinMode(stepPin_2, OUTPUT);
+  pinMode(dirPin_2, OUTPUT);
+  pinMode(stepPin_3, OUTPUT);
+  pinMode(dirPin_3, OUTPUT);
+
+
+  myservo1.attach(8);  // attaches the servo on pin 9 to the servo object
+  myservo2.attach(9);  // attaches the servo on pin 9 to the servo object
+  myservo3.attach(10);  // attaches the servo on pin 9 to the servo object
+  myservo4.attach(11);  // attaches the servo on pin 9 to the servo object
+  myservo5.attach(12);  // attaches the servo on pin 9 to the servo object
+  myservo6.attach(13);  // attaches the servo on pin 9 to the servo object
   myservo1.write(angle1);
   delay(100);
   myservo2.write(angle2);
@@ -63,23 +80,7 @@ void setup()
   delay(100);
   myservo6.write(angle6);
   delay(100);
-  
-  pump1.attach(2);
-  pump2.attach(3);
-  pump3.attach(4);    
-  pump1.write(0); 
-  delay(1000);
-  pump2.write(0);  
-  delay(1000);
-  pump3.write(0);  
-  delay(1000);
-  pump1.write(counter1);  
-  delay(1000);
-  pump2.write(counter2); 
-  delay(1000);
-  pump3.write(counter3);  
-  delay(1000);
-  
+
   pinMode(inputpin1,INPUT_PULLUP);
   pinMode(inputpin2,INPUT_PULLUP);
   pinMode(inputpin3,INPUT_PULLUP);
@@ -87,35 +88,73 @@ void setup()
   pinMode(inputpin5,INPUT_PULLUP);
   pinMode(inputpin6,INPUT_PULLUP);
 
+  digitalWrite(dirPin_1, HIGH);
+  digitalWrite(dirPin_2, HIGH);
+  digitalWrite(dirPin_3, HIGH);
+
+  // Stepper 2 goes to a initial position
+  for (int i = 0; i < stepsPerRevolution; i++) {
+    // These four lines result in 1 step:
+    digitalWrite(stepPin_2, HIGH);
+    delayMicroseconds(delay_stepper);
+    digitalWrite(stepPin_2, LOW);
+    delayMicroseconds(delay_stepper);
+  }
+
+  // Stepper 3 goes to a initial position
+  for (int i = 0; i < stepsPerRevolution*2; i++) {
+    // These four lines result in 1 step:
+    digitalWrite(stepPin_3, HIGH);
+    delayMicroseconds(delay_stepper);
+    digitalWrite(stepPin_3, LOW);
+    delayMicroseconds(delay_stepper);
+  }
+
   
   Serial.println("Servo Button");
-} 
+}
 
-void loop() {  
-  counter1 += adder1;
-  counter2 += adder2;
-  counter3 += adder3;
-  pump1.write(counter1);
-  delay(step_time);  
-  pump2.write(counter2); 
-  delay(step_time);
-  pump3.write(counter3); 
-  delay(step_time);
-  if (counter1 == 180){
-    adder1 *= -1;
-  } else if(counter1 == 0){
-    adder1 *= -1;
+void loop() {
+
+  counter_1 += adder_1;
+  counter_2 += adder_2;
+  counter_3 += adder_3; 
+
+
+  if (counter_1 == 200){
+    digitalWrite(dirPin_1, LOW);
+    adder_1 *= -1;
+  } else if (counter_1 == 0){
+    digitalWrite(dirPin_1, HIGH);
+    adder_1 *= -1;
   }
-  if (counter2 == 180){
-    adder2 *= -1;
-  } else if(counter2 == 0){
-    adder2 *= -1;
+
+  if (counter_2 == 200){
+    digitalWrite(dirPin_2, LOW);
+    adder_2 *= -1;
+  } else if (counter_2 == 0){
+    digitalWrite(dirPin_2, HIGH);
+    adder_2 *= -1;
   }
-  if (counter3 == 180){
-    adder3 *= -1;
-  } else if(counter3 == 0){
-    adder3 *= -1;
+
+  if (counter_3 == 200){
+    digitalWrite(dirPin_3, LOW);
+    adder_3 *= -1;
+  } else if (counter_3 == 0){
+    digitalWrite(dirPin_3, HIGH);
+    adder_3 *= -1;
   }
+
+
+  digitalWrite(stepPin_1, HIGH);
+  digitalWrite(stepPin_2, HIGH);
+  digitalWrite(stepPin_3, HIGH);
+  delayMicroseconds(delay_stepper);
+  digitalWrite(stepPin_1, LOW);
+  digitalWrite(stepPin_2, LOW);
+  digitalWrite(stepPin_3, LOW);
+  delayMicroseconds(delay_stepper);
+
 
   if (digitalRead(inputpin1) == LOW){
     if (angle1 < 180) {
@@ -182,4 +221,4 @@ void loop() {
     angle6 = 0;
     myservo6.write(angle6);
   }
-} 
+}
